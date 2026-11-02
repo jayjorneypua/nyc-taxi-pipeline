@@ -1,3 +1,10 @@
+WITH bounds AS (
+    SELECT
+        trunc(CAST(MIN(pickup_at) AS DATE), 'YEAR')                                AS start_date
+      , date_add(add_months(trunc(CAST(MAX(pickup_at) AS DATE), 'YEAR'), 12), -1)  AS end_date
+    FROM
+        {{ ref('stg_trips') }}
+)
 SELECT
     CAST(date_format(d, 'yyyyMMdd') AS INT)  AS date_key
   , d                                        AS full_date
@@ -10,5 +17,7 @@ SELECT
   , dayofweek(d) IN (1, 7)                   AS is_weekend
 FROM (
     SELECT
-        explode(sequence(DATE'2024-01-01', DATE'2024-12-31', INTERVAL 1 DAY)) AS d
+        explode(sequence(start_date, end_date, INTERVAL 1 DAY)) AS d
+    FROM
+        bounds
 )
