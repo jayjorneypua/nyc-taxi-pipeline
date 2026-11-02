@@ -114,3 +114,12 @@ Needs a dbt profile named `nyc_taxi` pointing at a Databricks SQL warehouse, and
 3. Run `databricks auth login`
 
 Deploying doesn't need any of this. Merging to `main` deploys automatically.
+
+
+## Security
+
+- The job runs as a dedicated service principal, not a personal account. It owns the pipeline's schemas, tables, and volume, has read-only access to the Salesforce secret scope, and has no admin rights.
+- GitHub Actions logs in as the same service principal with OAuth (client ID and secret stored as GitHub secrets). No personal tokens are used in CI/CD.
+- Three environments: `gold_dev` for local development, `gold_ci` for pull request tests, and `gold` for production, which only the job changes.
+- Free Edition note: views can't be transferred to a service principal there, so they were dropped and recreated by dbt running as the service principal.
+- Known shortcut: the bundle deploys to `/Workspace/Shared`, which every workspace user can edit. Fine for a one-person workspace. In a team, deploys would go only through CI into the service principal's own folder.
