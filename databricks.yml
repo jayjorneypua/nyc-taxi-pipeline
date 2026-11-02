@@ -1,0 +1,12 @@
+bundle:
+  name: nyc_taxi_pipeline
+
+workspace:
+  host: https://dbc-609647e1-c073.cloud.databricks.com
+
+include:
+  - resources/*.yml
+
+targets:
+  prod:
+    default: true

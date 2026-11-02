@@ -1,0 +1,65 @@
+resources:
+  jobs:
+    nyc_taxi_pipeline:
+      name: nyc_taxi_pipeline
+      max_concurrent_runs: 1
+
+      schedule:
+        quartz_cron_expression: "0 0 6 1 * ?"
+        timezone_id: Asia/Manila
+        pause_status: UNPAUSED
+
+      environments:
+        - environment_key: dbt-default
+          spec:
+            environment_version: "6"
+            dependencies:
+              - dbt-databricks==1.13.0
+
+      tasks:
+        - task_key: download
+          notebook_task:
+            notebook_path: ../notebooks/01_download_trips.ipynb
+
+        - task_key: download_accounts
+          notebook_task:
+            notebook_path: ../notebooks/01_download_accounts.ipynb
+
+        - task_key: bronze_trips
+          depends_on:
+            - task_key: download
+          notebook_task:
+            notebook_path: ../notebooks/02_bronze_trips.ipynb
+
+        - task_key: bronze_zones
+          depends_on:
+            - task_key: download
+          notebook_task:
+            notebook_path: ../notebooks/02_bronze_zones.ipynb
+
+        - task_key: bronze_accounts
+          depends_on:
+            - task_key: download_accounts
+          notebook_task:
+            notebook_path: ../notebooks/02_bronze_accounts.ipynb
+
+        - task_key: silver_trips
+          depends_on:
+            - task_key: bronze_trips
+          notebook_task:
+            notebook_path: ../notebooks/03_silver_trips.ipynb
+
+        - task_key: dbt_build
+          depends_on:
+            - task_key: silver_trips
+            - task_key: bronze_zones
+            - task_key: bronze_accounts
+          environment_key: dbt-default
+          dbt_task:
+            project_directory: ../dbt
+            commands:
+              - dbt deps
+              - dbt build
+            warehouse_id: 606b0c60dc21c8fd
+            catalog: workspace
+            schema: gold
