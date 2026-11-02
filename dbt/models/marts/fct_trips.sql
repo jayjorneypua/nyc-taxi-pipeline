@@ -1,25 +1,25 @@
 {{ config(
-    materialized            = 'incremental'
-  , incremental_strategy    = 'merge'
-  , unique_key              = 'trip_key'
+    materialized         = 'incremental'
+  , incremental_strategy = 'merge'
+  , unique_key           = 'trip_key'
 ) }}
 
 WITH trips AS (
     SELECT
         {{ dbt_utils.generate_surrogate_key([
-            'trip.vendor_id'
-          , 'trip.pickup_at'
-          , 'trip.dropoff_at'
-          , 'trip.pickup_location_id'
-          , 'trip.dropoff_location_id'
-          , 'trip.total_amount'
-        ]) }} AS trip_key
-      , trip.*
+            't.vendor_id'
+          , 't.pickup_at'
+          , 't.dropoff_at'
+          , 't.pickup_location_id'
+          , 't.dropoff_location_id'
+          , 't.total_amount'
+        ]) }}  AS trip_key
+      , t.*
     FROM
-        {{ ref('stg_trips') }} trip
+        {{ ref('stg_trips') }} t
     {% if is_incremental() %}
     WHERE
-        trip.ingested_at > (SELECT MAX(_ingested_at) FROM {{ this }})
+        t._ingested_at > (SELECT MAX(_ingested_at) FROM {{ this }})
     {% endif %}
 )
 , client_count AS (
@@ -31,6 +31,7 @@ WITH trips AS (
 , assigned AS (
     SELECT
         trips.*
+        -- about 30% of trips are corporate, each assigned to a client by hash
       , CASE
             WHEN pmod(xxhash64(trips.trip_key), 100) < 30
             THEN pmod(xxhash64(trips.trip_key, 'client'), client_count.n)
@@ -71,6 +72,6 @@ LEFT JOIN
     ON a.dropoff_location_id = dl.location_id
 LEFT JOIN
     {{ ref('dim_client') }} c
-    ON a.client_number = c.client_number
-    AND a.pickup_at >= c.valid_from
-    AND a.pickup_at < c.valid_to
+    ON  a.client_number = c.client_number
+    AND a.pickup_at    >= c.valid_from
+    AND a.pickup_at    <  c.valid_to
