@@ -16,5 +16,6 @@ SELECT
   , is_zero_distance
   , file_year
   , file_month
+  , _ingested_at
 FROM
     {{ source('silver', 'trips') }}

@@ -1,3 +1,9 @@
+{{ config(
+    materialized         = 'incremental'
+  , incremental_strategy = 'merge'
+  , unique_key           = 'trip_key'
+) }}
+
 SELECT
     {{ dbt_utils.generate_surrogate_key([
         't.vendor_id'
@@ -24,6 +30,7 @@ SELECT
   , t.total_amount
   , t.is_negative_fare
   , t.is_zero_distance
+  , t._ingested_at
 FROM
     {{ ref('stg_trips') }} t
 LEFT JOIN
@@ -32,3 +39,8 @@ LEFT JOIN
 LEFT JOIN
     {{ ref('dim_location') }} dl
     ON t.dropoff_location_id = dl.location_id
+
+{% if is_incremental() %}
+WHERE
+    t._ingested_at > (SELECT MAX(_ingested_at) FROM {{ this }})
+{% endif %}

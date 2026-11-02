@@ -5,7 +5,7 @@ Batch pipeline on Databricks that loads NYC yellow taxi trips, cleans them, and 
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[NYC TLC site] -->|python| B[Volume: raw files]
     B -->|Auto Loader| C[bronze.trips]
     B -->|read_files| D[bronze.zones]
