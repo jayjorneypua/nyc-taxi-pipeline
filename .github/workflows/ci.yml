@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_HOST: https://dbc-609647e1-c073.cloud.databricks.com
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install packages
+        run: pip install -r requirements.txt
+
+      - name: Install the Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Check the bundle
+        run: databricks bundle validate
+
+      - name: Build and test dbt models
+        working-directory: dbt
+        run: |
+          dbt deps
+          dbt build --profiles-dir ci
