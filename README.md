@@ -101,7 +101,16 @@ dbt build
 
 Needs a dbt profile named `nyc_taxi` pointing at a Databricks SQL warehouse, and a `.env` file with `SF_DOMAIN`, `SF_CLIENT_ID`, and `SF_CLIENT_SECRET` to run the Salesforce extract.
 
-## Next
 
-- GitHub Actions running `dbt build` on every pull request
-- Job defined as code with Databricks Asset Bundles
+## CI/CD
+
+- **CI:** every pull request runs `databricks bundle validate` and a full `dbt build` with all tests, into a separate `gold_ci` schema so production tables are never touched.
+- **CD:** every merge to `main` runs `databricks bundle deploy`, which updates the job from `resources/nyc_taxi_pipeline.job.yml`. The job definition lives in Git, so nothing is configured by hand in the Databricks UI.
+
+## Setup on a new machine
+
+1. Clone the repo and run `pip install -r requirements.txt` in a Python 3.12 venv
+2. Create `~/.dbt/profiles.yml` with a `nyc_taxi` profile, and a `.env` with the Salesforce credentials (neither is in Git)
+3. Run `databricks auth login`
+
+Deploying doesn't need any of this. Merging to `main` deploys automatically.
