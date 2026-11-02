@@ -3,6 +3,7 @@ bundle:
 
 workspace:
   host: https://dbc-609647e1-c073.cloud.databricks.com
+  root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
 
 include:
   - resources/*.yml
@@ -10,3 +11,5 @@ include:
 targets:
   prod:
     default: true
+    run_as:
+      service_principal_name: bc056010-bdff-4b94-baf7-dbfdebf3d548

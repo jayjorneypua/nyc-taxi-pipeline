@@ -4,6 +4,12 @@ resources:
       name: nyc_taxi_pipeline
       max_concurrent_runs: 1
 
+      permissions:
+        - level: CAN_MANAGE
+          service_principal_name: bc056010-bdff-4b94-baf7-dbfdebf3d548
+        - level: CAN_MANAGE
+          user_name: jayjorneypua@gmail.com
+
       schedule:
         quartz_cron_expression: "0 0 6 1 * ?"
         timezone_id: Asia/Manila
