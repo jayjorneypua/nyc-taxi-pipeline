@@ -1,0 +1,27 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_HOST: https://dbc-609647e1-c073.cloud.databricks.com
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Install the Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Check the bundle
+        run: databricks bundle validate
+
+      - name: Deploy to Databricks
+        run: databricks bundle deploy
