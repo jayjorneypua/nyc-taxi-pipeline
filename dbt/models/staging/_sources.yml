@@ -6,6 +6,7 @@ sources:
     schema: bronze
     tables:
       - name: zones
+      - name: salesforce_accounts
 
   - name: silver
     database: workspace

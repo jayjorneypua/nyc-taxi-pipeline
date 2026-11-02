@@ -1,0 +1,7 @@
+snapshots:
+  - name: snap_salesforce_accounts
+    relation: ref('stg_salesforce_accounts')
+    config:
+      unique_key: account_id
+      strategy: timestamp
+      updated_at: modified_at
