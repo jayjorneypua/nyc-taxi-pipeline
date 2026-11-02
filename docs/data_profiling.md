@@ -9,6 +9,7 @@ What I found:
 - 37,448 negative fares
 - 171,627 trips with 0 or null passengers
 - 60,371 trips with 0 distance
+- 1 exact duplicate trip in feb 2024, removed in silver
 
 Plan for silver:
 - drop bad timestamps and dropoff before pickup
