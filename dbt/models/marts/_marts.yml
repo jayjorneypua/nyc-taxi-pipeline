@@ -19,6 +19,13 @@ models:
           - unique
           - not_null
 
+  - name: dim_client
+    columns:
+      - name: client_key
+        data_tests:
+          - unique
+          - not_null
+
   - name: fct_trips
     columns:
       - name: trip_key
@@ -46,3 +53,9 @@ models:
               arguments:
                 to: ref('dim_location')
                 field: location_key
+      - name: client_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_client')
+                field: client_key 
