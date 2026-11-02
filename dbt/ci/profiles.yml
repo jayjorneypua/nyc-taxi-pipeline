@@ -1,0 +1,11 @@
+nyc_taxi:
+  target: ci
+  outputs:
+    ci:
+      type: databricks
+      host: dbc-609647e1-c073.cloud.databricks.com
+      http_path: /sql/1.0/warehouses/606b0c60dc21c8fd
+      catalog: workspace
+      schema: gold_ci
+      token: "{{ env_var('DATABRICKS_TOKEN') }}"
+      threads: 4
