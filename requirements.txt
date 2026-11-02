@@ -1,0 +1,2 @@
+requests
+dbt-databricks==1.13.0
